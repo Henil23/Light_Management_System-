@@ -1,6 +1,7 @@
 
-from PyQt6 import QtCore, QtGui, QtWidgets
 
+from PyQt6 import QtCore, QtGui, QtWidgets
+import os
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -61,6 +62,11 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
+        # Add connections to handle state changes
+        self.radioButton.toggled.connect(self.handleLightToggle)
+        self.AdjustIntensity.valueChanged.connect(self.handleBrightnessChange)
+        self.dateTimeEdit.dateTimeChanged.connect(self.handleScheduleChange)
+
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
@@ -77,6 +83,43 @@ class Ui_MainWindow(object):
         self.label_5.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:18pt;\">HEALTH:</span></p><p><span style=\" font-size:18pt;\"><br/></span></p></body></html>"))
         self.pushButton_2.setText(_translate("MainWindow", "LOG OUT "))
 
+    def handleLightToggle(self, checked):
+        if checked:
+            save_state(True, self.AdjustIntensity.value())
+        else:
+            save_state(False, self.AdjustIntensity.value())
+
+    def handleBrightnessChange(self, value):
+        save_state(self.radioButton.isChecked(), value)
+
+    def handleScheduleChange(self, datetime):
+        # Save the scheduled datetime
+            save_schedule(datetime)
+
+
+def save_state(on_state, brightness):
+    with open("light_state.txt", "w") as file:
+        file.write(f"{on_state},{brightness}")
+
+# New functions to save and load scheduled datetime
+def save_schedule(datetime):
+    with open("schedule_state.txt", "w") as file:
+        file.write(datetime.toString("yyyy-MM-ddTHH:mm:ss"))
+
+def load_schedule():
+    if os.path.exists("schedule_state.txt"):
+        with open("schedule_state.txt", "r") as file:
+            datetime_str = file.read()
+            return QtCore.QDateTime.fromString(datetime_str, "yyyy-MM-ddTHH:mm:ss")
+    return QtCore.QDateTime.currentDateTime()  # Default value is current time
+
+
+def load_state():
+    if os.path.exists("light_state.txt"):
+        with open("light_state.txt", "r") as file:
+            state = file.read().split(',')
+            return state[0] == 'True', int(state[1])
+    return False, 50  # Default values
 
 if __name__ == "__main__":
     import sys
@@ -84,5 +127,14 @@ if __name__ == "__main__":
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
+    
+    # Load saved state and apply it to the UI
+    on_state, brightness = load_state()
+    ui.radioButton.setChecked(on_state)
+    ui.radioButton_2.setChecked(not on_state)
+    ui.AdjustIntensity.setValue(brightness)
+    scheduled_datetime = load_schedule()
+    ui.dateTimeEdit.setDateTime(scheduled_datetime)
+    
     MainWindow.show()
     sys.exit(app.exec())

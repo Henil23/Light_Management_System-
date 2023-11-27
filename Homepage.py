@@ -1,7 +1,7 @@
-
-
-
 from PyQt6 import QtCore, QtGui, QtWidgets
+# from Event_list import CalendarApp
+from Event_list import CalendarApp  # Importing the calendarapp class
+
 
 
 class Ui_MainWindow(object):
@@ -30,7 +30,7 @@ class Ui_MainWindow(object):
         self.calendarWidget.setGeometry(QtCore.QRect(410, 88, 231, 151))
         self.calendarWidget.setObjectName("calendarWidget")
         self.columnView = QtWidgets.QColumnView(parent=self.centralwidget)
-        self.columnView.setGeometry(QtCore.QRect(15, 260, 621, 181))
+        self.columnView.setGeometry(QtCore.QRect(20, 270, 621, 181))
         self.columnView.setObjectName("columnView")
         self.checkBox = QtWidgets.QCheckBox(parent=self.centralwidget)
         self.checkBox.setGeometry(QtCore.QRect(30, 330, 84, 21))
@@ -51,10 +51,10 @@ class Ui_MainWindow(object):
         self.checkBox_6.setGeometry(QtCore.QRect(410, 370, 84, 21))
         self.checkBox_6.setObjectName("checkBox_6")
         self.pushButton = QtWidgets.QPushButton(parent=self.centralwidget)
-        self.pushButton.setGeometry(QtCore.QRect(530, 330, 91, 61))
+        self.pushButton.setGeometry(QtCore.QRect(530, 350, 91, 51))
         self.pushButton.setObjectName("pushButton")
         self.label_4 = QtWidgets.QLabel(parent=self.centralwidget)
-        self.label_4.setGeometry(QtCore.QRect(30, 270, 181, 31))
+        self.label_4.setGeometry(QtCore.QRect(30, 280, 181, 31))
         self.label_4.setObjectName("label_4")
         self.lcdNumber = QtWidgets.QLCDNumber(parent=self.centralwidget)
         self.lcdNumber.setGeometry(QtCore.QRect(50, 140, 101, 61))
@@ -69,6 +69,10 @@ class Ui_MainWindow(object):
         self.pushButton_2 = QtWidgets.QPushButton(parent=self.centralwidget)
         self.pushButton_2.setGeometry(QtCore.QRect(530, 20, 101, 31))
         self.pushButton_2.setObjectName("pushButton_2")
+        self.pushButton_3 = QtWidgets.QPushButton(parent=self.centralwidget)
+        self.pushButton_3.setGeometry(QtCore.QRect(410, 60, 80, 26))
+        self.pushButton_3.setObjectName("pushButton_3")
+        self.pushButton_3.clicked.connect(self.navigateToEventList)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 649, 21))
@@ -77,9 +81,20 @@ class Ui_MainWindow(object):
         self.statusbar = QtWidgets.QStatusBar(parent=MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
+        # self.addEventButton = QtWidgets.QPushButton(parent=self.centralwidget)
+        # # self.addEventButton.setGeometry(QtCore.QRect(530, 350, 91, 51))  # Adjust geometry as needed
+        # # self.addEventButton.setObjectName("addEventButton")
+        # # self.addEventButton.setText("Add Event")  # Set the button text
+        # # self.addEventButton.clicked.connect(self.navigateToEventList)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+    def navigateToEventList(self):
+        # This function will be called when the Add Event button is clicked
+        self.eventListWindow = CalendarApp()  # Assuming EventListWindow initializes the event list window
+        self.eventListWindow.show()
+
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -105,6 +120,17 @@ class Ui_MainWindow(object):
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\">2) MAINTAINANCE REQUIRED IN WASHROOM</span></p></body></html>"))
         self.label_5.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:18pt;\">iLLumi</span></p></body></html>"))
         self.pushButton_2.setText(_translate("MainWindow", "LOGUT"))
+        self.pushButton_3.setText(_translate("MainWindow", "Add Event "))
+       
+
+    #   self.pushButton.clicked.connect(self.advanced_button_clicked)
+    #   def advanced_button_clicked(self):
+    #         dialog = QDialog(self.centralwidget)
+    #         dialog.setWindowTitle("Advanced Options")
+    #         dialog.setGeometry(300,300,600,400)
+    #         dialog.show()
+
+
 
 
 if __name__ == "__main__":

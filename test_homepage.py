@@ -1,15 +1,19 @@
-
+import json
+import os
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 #from Control_Room import BuildingControlApp
 
 
 class Ui_MainWindow(object):
+
+
     def homepageUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1000, 1000)
         self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+
 
         self.listWidget = QtWidgets.QListWidget(parent=self.centralwidget)
         self.listWidget.setGeometry(QtCore.QRect(10, 91, 191, 151))
@@ -63,6 +67,14 @@ class Ui_MainWindow(object):
         self.checkBox_6.setGeometry(QtCore.QRect(410, 370, 84, 21))
         self.checkBox_6.setObjectName("checkBox_6")
 
+        self.checkBox.clicked.connect(self.update_room_states)
+        self.checkBox_2.clicked.connect(self.update_room_states)
+        self.checkBox_3.clicked.connect(self.update_room_states)
+        self.checkBox_4.clicked.connect(self.update_room_states)
+        self.checkBox_5.clicked.connect(self.update_room_states)
+        self.checkBox_6.clicked.connect(self.update_room_states)
+
+
         self.pushButton = QtWidgets.QPushButton(parent=self.centralwidget)
         self.pushButton.setGeometry(QtCore.QRect(530, 350, 91, 51))
         self.pushButton.setObjectName("pushButton")
@@ -95,6 +107,7 @@ class Ui_MainWindow(object):
         self.pushButton_3.setObjectName("pushButton_3")
         self.pushButton_3.clicked.connect(self.navigateToEventList)
 
+
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 649, 21))
@@ -106,13 +119,65 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
 
-# function to open control room
+    def showEvent(self, event):
+        self.load_checkbox_states()
+        super().showEvent(event)
+
+    def focusInEvent(self, event):
+        self.load_checkbox_states()
+        super().focusInEvent(event)
+
+    def update_room_states(self):
+        states = {
+            "Room 1A": self.checkBox.isChecked(),
+            "Room 1B": self.checkBox_2.isChecked(),
+            "Room 2A": self.checkBox_3.isChecked(),
+            "Room 2B": self.checkBox_4.isChecked(),
+            "Room 3A": self.checkBox_5.isChecked(),
+            "Room 3B": self.checkBox_6.isChecked(),
+            # Add the rest of the checkboxes
+        }
+        with open("room_states.txt", "w") as file:
+            json.dump(states, file)
+
+    def update_checkboxes_from_file(self):
+        if not os.path.exists("room_states.txt"):
+            return
+        with open("room_states.txt", "r") as file:
+            states = json.load(file)
+        for room_name, state in states.items():
+            checkbox = getattr(self, room_name.lower().replace(" ", ""), None)
+            if checkbox:
+                checkbox.setChecked(state)
+
+    def refresh_state(self):
+        if not os.path.exists("room_states.txt"):
+            return
+        with open("room_states.txt", "r") as file:
+            states = json.load(file)
+        for room_name, state in states.items():
+            checkbox = getattr(self, room_name.lower().replace(" ", ""), None)
+            if checkbox:
+                checkbox.setChecked(state)
+
+
+    def load_checkbox_states(self):
+        if not os.path.exists("room_states.txt"):
+            return
+        with open("room_states.txt", "r") as file:
+            states = json.load(file)
+        for room_name, state in states.items():
+            checkbox = getattr(self, room_name.lower().replace(" ", ""), None)
+            if checkbox:
+                checkbox.setChecked(state)
+
+
     def open_Control_Room(self):
-        
-        
         from Control_Room import BuildingControlApp
         self.controlRoomWindow = BuildingControlApp()
         self.controlRoomWindow.show()
+
+        
         
  
  # function to navigate to event list
@@ -164,5 +229,3 @@ if __name__ == "__main__":
     ui.homepageUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec())
-
-

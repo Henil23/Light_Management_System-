@@ -1,14 +1,14 @@
-
-
 from PyQt6 import QtCore, QtGui, QtWidgets
 import os
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
+        self.mainWindow = MainWindow  
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(640, 480)
         self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+
         self.radioButton = QtWidgets.QRadioButton(parent=self.centralwidget)
         self.radioButton.setGeometry(QtCore.QRect(450, 230, 51, 31))
         self.radioButton.setObjectName("radioButton")
@@ -24,6 +24,7 @@ class Ui_MainWindow(object):
         self.pushButton = QtWidgets.QPushButton(parent=self.centralwidget)
         self.pushButton.setGeometry(QtCore.QRect(10, 10, 91, 31))
         self.pushButton.setObjectName("pushButton")
+        self.pushButton.clicked.connect(self.closeMainWindow)
         self.AdjustIntensity = QtWidgets.QSlider(parent=self.centralwidget)
         self.AdjustIntensity.setGeometry(QtCore.QRect(450, 300, 171, 31))
         self.AdjustIntensity.setOrientation(QtCore.Qt.Orientation.Horizontal)
@@ -62,13 +63,14 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
-        # Add connections to handle state changes
         self.radioButton.toggled.connect(self.handleLightToggle)
         self.AdjustIntensity.valueChanged.connect(self.handleBrightnessChange)
         self.dateTimeEdit.dateTimeChanged.connect(self.handleScheduleChange)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+        
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -93,15 +95,17 @@ class Ui_MainWindow(object):
         save_state(self.radioButton.isChecked(), value)
 
     def handleScheduleChange(self, datetime):
-        # Save the scheduled datetime
-            save_schedule(datetime)
+        save_schedule(datetime)
+
+    def closeMainWindow(self):
+        """Close the main window."""
+        self.mainWindow.close()
 
 
 def save_state(on_state, brightness):
     with open("light_state.txt", "w") as file:
         file.write(f"{on_state},{brightness}")
 
-# New functions to save and load scheduled datetime
 def save_schedule(datetime):
     with open("schedule_state.txt", "w") as file:
         file.write(datetime.toString("yyyy-MM-ddTHH:mm:ss"))
@@ -111,30 +115,29 @@ def load_schedule():
         with open("schedule_state.txt", "r") as file:
             datetime_str = file.read()
             return QtCore.QDateTime.fromString(datetime_str, "yyyy-MM-ddTHH:mm:ss")
-    return QtCore.QDateTime.currentDateTime()  # Default value is current time
-
+    return QtCore.QDateTime.currentDateTime()
 
 def load_state():
     if os.path.exists("light_state.txt"):
         with open("light_state.txt", "r") as file:
             state = file.read().split(',')
             return state[0] == 'True', int(state[1])
-    return False, 50  # Default values
+    return False, 50
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    
-    # Load saved state and apply it to the UI
+    ui.setupUi(MainWindow)  
+   # Load saved state and apply it to the UI
     on_state, brightness = load_state()
     ui.radioButton.setChecked(on_state)
     ui.radioButton_2.setChecked(not on_state)
     ui.AdjustIntensity.setValue(brightness)
     scheduled_datetime = load_schedule()
     ui.dateTimeEdit.setDateTime(scheduled_datetime)
-    
     MainWindow.show()
     sys.exit(app.exec())
+
+
